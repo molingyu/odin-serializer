@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="DictionaryFormatter.cs" company="Sirenix IVS">
 // Copyright (c) 2018 Sirenix IVS
 //
@@ -174,7 +174,11 @@ namespace OdinSerializer
         {
             try
             {
-                if (value.Comparer != null)
+                // Skip the comparer when it is the framework default (EqualityComparer<TKey>.Default):
+                // writing it drags implementation types like StringEqualityComparer through reflection
+                // (ISerializable warnings + data bloat), and deserialization falls back to the
+                // default comparer anyway.
+                if (value.Comparer != null && !ReferenceEquals(value.Comparer, EqualityComparer<TKey>.Default))
                 {
                     EqualityComparerSerializer.WriteValue("comparer", value.Comparer, writer);
                 }

@@ -20,7 +20,11 @@ namespace OdinSerializer.Utilities
     using System;
     using System.Collections;
     using System.Collections.Generic;
+#if UNITY
     using UnityEngine;
+#elif GODOT
+    using Wrapper;
+#endif
 
     /// <summary>
     /// Interface for immutable list.

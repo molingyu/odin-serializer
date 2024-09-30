@@ -19,13 +19,18 @@
 namespace OdinSerializer
 {
     using System.Globalization;
-    using OdinSerializer.Utilities;
+    using Utilities;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using UnityEngine;
+
+#if UNITY
+    using UnityEngine.Serialization;
+#elif GODOT
+    using Utilities.Wrapper;
+#endif
 
     /// <summary>
     /// Provides an array of utility methods which are commonly used by serialization formatters.
@@ -73,7 +78,7 @@ You probably need to assign the nullValue variable of the {0} script in the insp
 
             if (UnityObjectRuntimeErrorStringField == null)
             {
-                Debug.LogWarning("A change in Unity has hindered the Serialization system's ability to create proper fake Unity null values; the UnityEngine.Object.m_UnityRuntimeErrorString field has been renamed or removed.");
+                DebugWrapper.LogWarning("A change in Unity has hindered the Serialization system's ability to create proper fake Unity null values; the UnityEngine.Object.m_UnityRuntimeErrorString field has been renamed or removed.");
             }
 #endif
         }
@@ -148,32 +153,32 @@ You probably need to assign the nullValue variable of the {0} script in the insp
         /// or
         /// The type given in the owningType parameter is not a Unity object.
         /// </exception>
-        public static UnityEngine.Object CreateUnityNull(Type nullType, Type owningType)
-        {
-            if (nullType == null || owningType == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            if (nullType.ImplementsOrInherits(typeof(UnityEngine.Object)) == false)
-            {
-                throw new ArgumentException("Type " + nullType.Name + " is not a Unity object.");
-            }
-
-            if (owningType.ImplementsOrInherits(typeof(UnityEngine.Object)) == false)
-            {
-                throw new ArgumentException("Type " + owningType.Name + " is not a Unity object.");
-            }
-
-            UnityEngine.Object nullValue = (UnityEngine.Object)FormatterServices.GetUninitializedObject(nullType);
-
-            if (UnityObjectRuntimeErrorStringField != null)
-            {
-                UnityObjectRuntimeErrorStringField.SetValue(nullValue, string.Format(CultureInfo.InvariantCulture, UnityObjectRuntimeErrorString, owningType.Name));
-            }
-
-            return nullValue;
-        }
+        // public static UnityEngine.Object CreateUnityNull(Type nullType, Type owningType)
+        // {
+        //     if (nullType == null || owningType == null)
+        //     {
+        //         throw new ArgumentNullException();
+        //     }
+        //
+        //     if (nullType.ImplementsOrInherits(typeof(UnityEngine.Object)) == false)
+        //     {
+        //         throw new ArgumentException("Type " + nullType.Name + " is not a Unity object.");
+        //     }
+        //
+        //     if (owningType.ImplementsOrInherits(typeof(UnityEngine.Object)) == false)
+        //     {
+        //         throw new ArgumentException("Type " + owningType.Name + " is not a Unity object.");
+        //     }
+        //
+        //     UnityEngine.Object nullValue = (UnityEngine.Object)FormatterServices.GetUninitializedObject(nullType);
+        //
+        //     if (UnityObjectRuntimeErrorStringField != null)
+        //     {
+        //         UnityObjectRuntimeErrorStringField.SetValue(nullValue, string.Format(CultureInfo.InvariantCulture, UnityObjectRuntimeErrorString, owningType.Name));
+        //     }
+        //
+        //     return nullValue;
+        // }
 
         /// <summary>
         /// Determines whether a given type is a primitive type to the serialization system.
@@ -290,7 +295,7 @@ You probably need to assign the nullValue variable of the {0} script in the insp
 
             foreach (var member in map.Values.ToList())
             {
-                var serializedAsAttributes = member.GetAttributes<UnityEngine.Serialization.FormerlySerializedAsAttribute>();
+                var serializedAsAttributes = member.GetAttributes<FormerlySerializedAsAttribute>();
 
                 foreach (var attr in serializedAsAttributes)
                 {

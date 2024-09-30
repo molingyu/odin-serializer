@@ -22,7 +22,14 @@
 
 namespace OdinSerializer
 {
-    using OdinSerializer.Utilities;
+#if UNITY
+    using UnityEngine;
+    using EngineObject = UnityEngine.Object;
+#elif GODOT
+    using EngineObject = Godot.GodotObject;
+    using Utilities.Wrapper;
+#endif
+    using Utilities;
     using System;
     using System.Collections.Generic;
     using System.Reflection;
@@ -64,15 +71,15 @@ namespace OdinSerializer
         /// </summary>
         protected static readonly bool IsValueType = typeof(T).IsValueType;
 
-        protected static readonly bool ImplementsISerializationCallbackReceiver = typeof(T).ImplementsOrInherits(typeof(UnityEngine.ISerializationCallbackReceiver));
+        protected static readonly bool ImplementsISerializationCallbackReceiver = typeof(T).ImplementsOrInherits(typeof(ISerializationCallbackReceiver));
         protected static readonly bool ImplementsIDeserializationCallback = typeof(T).ImplementsOrInherits(typeof(IDeserializationCallback));
         protected static readonly bool ImplementsIObjectReference = typeof(T).ImplementsOrInherits(typeof(IObjectReference));
 
         static BaseFormatter()
         {
-            if (typeof(T).ImplementsOrInherits(typeof(UnityEngine.Object)))
+            if (typeof(T).ImplementsOrInherits(typeof(EngineObject)))
             {
-                DefaultLoggers.DefaultLogger.LogWarning("A formatter has been created for the UnityEngine.Object type " + typeof(T).Name + " - this is *strongly* discouraged. Unity should be allowed to handle serialization and deserialization of its own weird objects. Remember to serialize with a UnityReferenceResolver as the external index reference resolver in the serialization context.\n\n Stacktrace: " + new System.Diagnostics.StackTrace().ToString());
+                DefaultLoggers.DefaultLogger.LogWarning($"A formatter has been created for the EngineObject type " + typeof(T).Name + " - this is *strongly* discouraged. Unity should be allowed to handle serialization and deserialization of its own weird objects. Remember to serialize with a UnityReferenceResolver as the external index reference resolver in the serialization context.\n\n Stacktrace: " + new System.Diagnostics.StackTrace().ToString());
             }
 
             MethodInfo[] methods = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -252,7 +259,7 @@ namespace OdinSerializer
                 {
                     try
                     {
-                        UnityEngine.ISerializationCallbackReceiver v = value as UnityEngine.ISerializationCallbackReceiver;
+                        ISerializationCallbackReceiver v = value as ISerializationCallbackReceiver;
                         v.OnAfterDeserialize();
                         value = (T)v;
                     }
@@ -292,7 +299,7 @@ namespace OdinSerializer
                 try
                 {
 
-                    UnityEngine.ISerializationCallbackReceiver v = value as UnityEngine.ISerializationCallbackReceiver;
+                    ISerializationCallbackReceiver v = value as ISerializationCallbackReceiver;
                     v.OnBeforeSerialize();
                     value = (T)v;
                 }
@@ -442,13 +449,13 @@ namespace OdinSerializer
         public WeakBaseFormatter(Type serializedType)
         {
             this.SerializedType = serializedType;
-            this.ImplementsISerializationCallbackReceiver = this.SerializedType.ImplementsOrInherits(typeof(UnityEngine.ISerializationCallbackReceiver));
+            this.ImplementsISerializationCallbackReceiver = this.SerializedType.ImplementsOrInherits(typeof(ISerializationCallbackReceiver));
             this.ImplementsIDeserializationCallback = this.SerializedType.ImplementsOrInherits(typeof(IDeserializationCallback));
             this.ImplementsIObjectReference = this.SerializedType.ImplementsOrInherits(typeof(IObjectReference));
 
-            if (this.SerializedType.ImplementsOrInherits(typeof(UnityEngine.Object)))
+            if (this.SerializedType.ImplementsOrInherits(typeof(EngineObject)))
             {
-                DefaultLoggers.DefaultLogger.LogWarning("A formatter has been created for the UnityEngine.Object type " + this.SerializedType.Name + " - this is *strongly* discouraged. Unity should be allowed to handle serialization and deserialization of its own weird objects. Remember to serialize with a UnityReferenceResolver as the external index reference resolver in the serialization context.\n\n Stacktrace: " + new System.Diagnostics.StackTrace().ToString());
+                DefaultLoggers.DefaultLogger.LogWarning("A formatter has been created for the EngineObject type " + this.SerializedType.Name + " - this is *strongly* discouraged. Unity should be allowed to handle serialization and deserialization of its own weird objects. Remember to serialize with a UnityReferenceResolver as the external index reference resolver in the serialization context.\n\n Stacktrace: " + new System.Diagnostics.StackTrace().ToString());
             }
 
             MethodInfo[] methods = this.SerializedType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -533,7 +540,7 @@ namespace OdinSerializer
                 try
                 {
 
-                    UnityEngine.ISerializationCallbackReceiver v = value as UnityEngine.ISerializationCallbackReceiver;
+                    ISerializationCallbackReceiver v = value as ISerializationCallbackReceiver;
                     v.OnBeforeSerialize();
                     value = v;
                 }
@@ -647,7 +654,7 @@ namespace OdinSerializer
                 {
                     try
                     {
-                        UnityEngine.ISerializationCallbackReceiver v = value as UnityEngine.ISerializationCallbackReceiver;
+                        ISerializationCallbackReceiver v = value as ISerializationCallbackReceiver;
                         v.OnAfterDeserialize();
                         value = v;
                     }

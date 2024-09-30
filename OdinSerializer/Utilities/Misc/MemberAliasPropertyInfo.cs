@@ -215,7 +215,7 @@ namespace OdinSerializer.Utilities
         /// <param name="index">The indices to use.</param>
         /// <param name="culture">The culture to use.</param>
         /// <returns>The value of the property on the given instance.</returns>
-        public override object GetValue(object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
+        public override object GetValue(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? index, CultureInfo? culture)
         {
             return this.aliasedProperty.GetValue(obj, invokeAttr, binder, index, culture);
         }
@@ -229,7 +229,7 @@ namespace OdinSerializer.Utilities
         /// <param name="binder">The binder to use.</param>
         /// <param name="index">The indices to use.</param>
         /// <param name="culture">The culture to use.</param>
-        public override void SetValue(object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
+        public override void SetValue(object? obj, object? value, BindingFlags invokeAttr, Binder? binder, object?[]? index, CultureInfo? culture)
         {
             this.aliasedProperty.SetValue(obj, value, invokeAttr, binder, index, culture);
         }

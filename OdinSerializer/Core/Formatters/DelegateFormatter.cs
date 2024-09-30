@@ -22,6 +22,11 @@ namespace OdinSerializer
     using System.Linq;
     using System.Reflection;
     using Utilities;
+#if UNITY
+    using EngineObject = UnityEngine.Object;
+#elif GODOT
+    using EngineObject = Godot.GodotObject;
+#endif
 
     /// <summary>
     /// Formatter for all delegate types.
@@ -275,11 +280,11 @@ namespace OdinSerializer
             {
                 Type targetType = methodInfo.DeclaringType;
 
-                if (typeof(UnityEngine.Object).IsAssignableFrom(targetType))
+                if (typeof(EngineObject).IsAssignableFrom(targetType))
                 {
-                    if ((target as UnityEngine.Object) == null)
+                    if ((target as EngineObject) == null)
                     {
-                        reader.Context.Config.DebugContext.LogWarning("Method '" + declaringType.GetNiceFullName() + "." + methodInfo.GetNiceName() + "' of delegate to deserialize is an instance method, but Unity object target of type '" + targetType.GetNiceFullName() + "' was null on deserialization. Did something destroy it, or did you apply a delegate value targeting a scene-based UnityEngine.Object instance to a prefab?");
+                        reader.Context.Config.DebugContext.LogWarning("Method '" + declaringType.GetNiceFullName() + "." + methodInfo.GetNiceName() + "' of delegate to deserialize is an instance method, but Unity object target of type '" + targetType.GetNiceFullName() + "' was null on deserialization. Did something destroy it, or did you apply a delegate value targeting a scene-based EngineObject instance to a prefab?");
                         return;
                     }
                 }

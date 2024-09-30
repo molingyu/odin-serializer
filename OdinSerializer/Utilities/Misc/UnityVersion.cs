@@ -15,9 +15,12 @@
 // limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------
+
+#if UNITY
 namespace OdinSerializer.Utilities
 {
     using UnityEngine;
+    using Wrapper;
 
     /// <summary>
     /// Utility class indicating current Unity version.
@@ -34,18 +37,18 @@ namespace OdinSerializer.Utilities
 
             if (version.Length < 2)
             {
-                Debug.LogError("Could not parse current Unity version '" + Application.unityVersion + "'; not enough version elements.");
+                DebugWrapper.LogError("Could not parse current Unity version '" + Application.unityVersion + "'; not enough version elements.");
                 return;
             }
 
             if (int.TryParse(version[0], out Major) == false)
             {
-                Debug.LogError("Could not parse major part '" + version[0] + "' of Unity version '" + Application.unityVersion + "'.");
+                DebugWrapper.LogError("Could not parse major part '" + version[0] + "' of Unity version '" + Application.unityVersion + "'.");
             }
 
             if (int.TryParse(version[1], out Minor) == false)
             {
-                Debug.LogError("Could not parse minor part '" + version[1] + "' of Unity version '" + Application.unityVersion + "'.");
+                DebugWrapper.LogError("Could not parse minor part '" + version[1] + "' of Unity version '" + Application.unityVersion + "'.");
             }
         }
 
@@ -79,3 +82,4 @@ namespace OdinSerializer.Utilities
         public static readonly int Minor;
     }
 }
+#endif

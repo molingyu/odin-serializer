@@ -18,7 +18,8 @@
 
 namespace OdinSerializer
 {
-    using OdinSerializer.Utilities;
+    using Utilities;
+    using Utilities.Wrapper;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -200,7 +201,7 @@ namespace OdinSerializer
                     }
                     catch (KeyNotFoundException)
                     {
-                        UnityEngine.Debug.LogError("Failed to find primitive serializer for " + type.Name);
+                        DebugWrapper.LogError("Failed to find primitive serializer for " + type.Name);
                     }
                 }
                 else
@@ -253,7 +254,7 @@ namespace OdinSerializer
 
         private static void LogAOTError(Type type, ExecutionEngineException ex)
         {
-            UnityEngine.Debug.LogError("No AOT serializer was pre-generated for the type '" + type.GetNiceFullName() + "'. " +
+            DebugWrapper.LogError("No AOT serializer was pre-generated for the type '" + type.GetNiceFullName() + "'. " +
                 "Please use Odin's AOT generation feature to generate an AOT dll before building, and ensure that '" +
                 type.GetNiceFullName() + "' is in the list of supported types after a scan. If it is not, please " +
                 "report an issue and add it to the list manually.");

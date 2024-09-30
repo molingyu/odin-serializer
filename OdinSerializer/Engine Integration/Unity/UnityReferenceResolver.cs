@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="UnityReferenceResolver.cs" company="Sirenix IVS">
 // Copyright (c) 2018 Sirenix IVS
 //
@@ -45,14 +45,14 @@ namespace OdinSerializer
         /// <param name="referencedUnityObjects">The referenced Unity objects.</param>
         public UnityReferenceResolver(List<UnityEngine.Object> referencedUnityObjects)
         {
-            this.SetReferencedUnityObjects(referencedUnityObjects);
+            this.SetReferencedEngineObjects(referencedUnityObjects);
         }
 
         /// <summary>
         /// Gets the currently referenced Unity objects.
         /// </summary>
         /// <returns>A list of the currently referenced Unity objects.</returns>
-        public List<UnityEngine.Object> GetReferencedUnityObjects()
+        public List<UnityEngine.Object> GetReferencedEngineObjects()
         {
             return this.referencedUnityObjects;
         }
@@ -61,7 +61,7 @@ namespace OdinSerializer
         /// Sets the referenced Unity objects of the resolver to a given list, or a new list if the value is null.
         /// </summary>
         /// <param name="referencedUnityObjects">The referenced Unity objects to set, or null if a new list is required.</param>
-        public void SetReferencedUnityObjects(List<UnityEngine.Object> referencedUnityObjects)
+        public void SetReferencedEngineObjects(List<UnityEngine.Object> referencedUnityObjects)
         {
             if (referencedUnityObjects == null)
             {

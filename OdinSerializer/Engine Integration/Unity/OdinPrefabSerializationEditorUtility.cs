@@ -24,6 +24,7 @@ namespace OdinSerializer
     using System.Reflection;
     using UnityEditor;
     using UnityEngine;
+    using Utilities.Wrapper;
 
     public static class OdinPrefabSerializationEditorUtility
     {
@@ -116,7 +117,7 @@ namespace OdinSerializer
 
             if (PrefabUtility_GetPrefabType_Method == null && PrefabUtility_GetPrefabAssetType_Method == null)
             {
-                Debug.LogError("Neither PrefabUtility.GetPrefabType or PrefabUtility.GetPrefabAssetType methods could be located. Prefab functionality will likely be broken in this build of Odin.");
+                DebugWrapper.LogError("Neither PrefabUtility.GetPrefabType or PrefabUtility.GetPrefabAssetType methods could be located. Prefab functionality will likely be broken in this build of Odin.");
             }
 
             return GetCorrespondingObjectFromSource(unityObject) != null;
@@ -148,7 +149,7 @@ namespace OdinSerializer
                 return (UnityEngine.Object)PrefabUtility_GetPrefabParent_Method.Invoke(null, new object[] { unityObject });
             }
 
-            Debug.LogError("Neither PrefabUtility.GetCorrespondingObjectFromSource or PrefabUtility.GetPrefabParent methods could be located. Prefab functionality will be broken in this build of Odin.");
+            DebugWrapper.LogError("Neither PrefabUtility.GetCorrespondingObjectFromSource or PrefabUtility.GetPrefabParent methods could be located. Prefab functionality will be broken in this build of Odin.");
             return null;
         }
     }

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="OdinSerializeAttribute.cs" company="Sirenix IVS">
+// <copyright file="IOverridesSerializationPolicy.cs" company="Sirenix IVS">
 // Copyright (c) 2018 Sirenix IVS
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,14 @@
 
 namespace OdinSerializer
 {
-    using System;
-
     /// <summary>
-    /// Indicates that an instance field or auto-property should be serialized by Odin.
+    /// Indicates that an Odin-serialized Unity object provides its own serialization policy rather than using the default policy.
+    /// <para/>
+    /// Note that THE VALUES RETURNED BY THIS INTERFACE WILL OVERRIDE THE PARAMETERS PASSED TO <see cref="UnitySerializationUtility.SerializeUnityObject(UnityEngine.Object, ref SerializationData, bool, SerializationContext)"/> and <see cref="UnitySerializationUtility.DeserializeUnityObject(UnityEngine.Object, ref SerializationData, DeserializationContext)"/>.
     /// </summary>
-    /// <seealso cref="System.Attribute" />
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class OdinSerializeAttribute : Attribute
+    public interface IOverridesSerializationPolicy
     {
+        ISerializationPolicy SerializationPolicy { get; }
+        bool OdinSerializesUnityFields { get; }
     }
 }

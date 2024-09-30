@@ -7,28 +7,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdinSerializer", "OdinSeria
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug Editor|Any CPU = Debug Editor|Any CPU
-		Release AOT|Any CPU = Release AOT|Any CPU
-		Release Editor|Any CPU = Release Editor|Any CPU
-		Release JIT|Any CPU = Release JIT|Any CPU
+		ReleaseGodot|Any CPU = ReleaseGodot|Any CPU
+		DebugUnity|Any CPU = DebugUnity|Any CPU
+		ReleaseUnity|Any CPU = ReleaseUnity|Any CPU
+		DebugGodot|Any CPU = DebugGodot|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Debug Editor|Any CPU.ActiveCfg = Debug Editor|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Debug Editor|Any CPU.Build.0 = Debug Editor|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release AOT|Any CPU.ActiveCfg = Release AOT|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release AOT|Any CPU.Build.0 = Release AOT|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release Editor|Any CPU.ActiveCfg = Release Editor|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release Editor|Any CPU.Build.0 = Release Editor|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release JIT|Any CPU.ActiveCfg = Release JIT|Any CPU
-		{F1111936-6086-412C-AB26-D7D8D3448A2A}.Release JIT|Any CPU.Build.0 = Release JIT|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {8A313189-C983-415D-BC29-14C705983A37}
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.ReleaseGodot|Any CPU.ActiveCfg = ReleaseGodot|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.ReleaseGodot|Any CPU.Build.0 = ReleaseGodot|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.DebugUnity|Any CPU.ActiveCfg = DebugUnity|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.DebugUnity|Any CPU.Build.0 = DebugUnity|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.ReleaseUnity|Any CPU.ActiveCfg = ReleaseUnity|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.ReleaseUnity|Any CPU.Build.0 = ReleaseUnity|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.DebugGodot|Any CPU.ActiveCfg = DebugGodot|Any CPU
+		{F1111936-6086-412C-AB26-D7D8D3448A2A}.DebugGodot|Any CPU.Build.0 = DebugGodot|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -19,13 +19,16 @@
 namespace OdinSerializer
 {
     using System;
+    using Utilities.Wrapper;
+#if UNITY
     using UnityEngine;
+#endif
 
     /// <summary>
     /// This class gathers info about the current architecture for the purpose of determinining
     /// the unaligned read/write capabilities that we have to work with.
     /// </summary>
-    public unsafe static class ArchitectureInfo
+    public static unsafe class ArchitectureInfo
     {
         public static bool Architecture_Supports_Unaligned_Float32_Reads;
 
@@ -41,7 +44,7 @@ namespace OdinSerializer
 
         static ArchitectureInfo()
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || TOOL
             Architecture_Supports_Unaligned_Float32_Reads = true;
             Architecture_Supports_All_Unaligned_ReadWrites = true;
 #else
@@ -50,7 +53,7 @@ namespace OdinSerializer
             Architecture_Supports_Unaligned_Float32_Reads = false;
             Architecture_Supports_All_Unaligned_ReadWrites = false;
 
-            Debug.Log("Odin Serializer ArchitectureInfo initialization with defaults (all unaligned read/writes disabled).");
+            DebugWrapper.Log("Odin Serializer ArchitectureInfo initialization with defaults (all unaligned read/writes disabled).");
 #endif
         }
 
@@ -112,18 +115,18 @@ namespace OdinSerializer
 
                     if (Architecture_Supports_Unaligned_Float32_Reads)
                     {
-                        Debug.Log("Odin Serializer detected whitelisted runtime platform " + platform + " and memory read test succeeded; enabling all unaligned memory read/writes.");
+                        DebugWrapper.Log("Odin Serializer detected whitelisted runtime platform " + platform + " and memory read test succeeded; enabling all unaligned memory read/writes.");
                         Architecture_Supports_All_Unaligned_ReadWrites = true;
                     }
                     else
                     {
-                        Debug.Log("Odin Serializer detected whitelisted runtime platform " + platform + " and memory read test failed; disabling all unaligned memory read/writes.");
+                        DebugWrapper.Log("Odin Serializer detected whitelisted runtime platform " + platform + " and memory read test failed; disabling all unaligned memory read/writes.");
                     }
                     break;
                 default:
                     Architecture_Supports_Unaligned_Float32_Reads = false;
                     Architecture_Supports_All_Unaligned_ReadWrites = false;
-                    Debug.Log("Odin Serializer detected non-white-listed runtime platform " + platform + "; disabling all unaligned memory read/writes.");
+                    DebugWrapper.Log("Odin Serializer detected non-white-listed runtime platform " + platform + "; disabling all unaligned memory read/writes.");
                     break;
             }
         }

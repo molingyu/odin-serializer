@@ -24,6 +24,12 @@ namespace OdinSerializer
     using System.Reflection;
     using Utilities;
 
+#if UNITY
+    using EngineObject = UnityEngine.Object;
+#elif GODOT
+    using EngineObject = Godot.GodotObject;
+#endif
+
     /// <summary>
     /// An Odin-serialized prefab modification, containing all the information necessary to apply the modification.
     /// </summary>
@@ -67,19 +73,19 @@ namespace OdinSerializer
         /// <summary>
         /// Applies the modification to the given Object.
         /// </summary>
-        public void Apply(UnityEngine.Object unityObject)
+        public void Apply(EngineObject engineObject)
         {
             if (this.ModificationType == PrefabModificationType.Value)
             {
-                this.ApplyValue(unityObject);
+                this.ApplyValue(engineObject);
             }
             else if (this.ModificationType == PrefabModificationType.ListLength)
             {
-                this.ApplyListLength(unityObject);
+                this.ApplyListLength(engineObject);
             }
             else if (this.ModificationType == PrefabModificationType.Dictionary)
             {
-                this.ApplyDictionaryModifications(unityObject);
+                this.ApplyDictionaryModifications(engineObject);
             }
             else
             {
@@ -87,7 +93,7 @@ namespace OdinSerializer
             }
         }
 
-        private void ApplyValue(UnityEngine.Object unityObject)
+        private void ApplyValue(EngineObject engineObject)
         {
             Type valueType = null;
 
@@ -104,7 +110,7 @@ namespace OdinSerializer
 
                     try
                     {
-                        var refValue = GetInstanceFromPath(path, unityObject);
+                        var refValue = GetInstanceFromPath(path, engineObject);
 
                         if (!object.ReferenceEquals(refValue, null) && refValue.GetType() == valueType)
                         {
@@ -116,12 +122,12 @@ namespace OdinSerializer
                 }
             }
 
-            SetInstanceToPath(this.Path, unityObject, this.ModifiedValue);
+            SetInstanceToPath(this.Path, engineObject, this.ModifiedValue);
         }
 
-        private void ApplyListLength(UnityEngine.Object unityObject)
+        private void ApplyListLength(EngineObject engineObject)
         {
-            object listObj = GetInstanceFromPath(this.Path, unityObject);
+            object listObj = GetInstanceFromPath(this.Path, engineObject);
 
             if (listObj == null)
             {
@@ -151,12 +157,12 @@ namespace OdinSerializer
                 if (this.NewLength > array.Length)
                 {
                     Array.Copy(array, 0, newArray, 0, array.Length);
-                    ReplaceAllReferencesInGraph(unityObject, array, newArray);
+                    ReplaceAllReferencesInGraph(engineObject, array, newArray);
                 }
                 else
                 {
                     Array.Copy(array, 0, newArray, 0, newArray.Length);
-                    ReplaceAllReferencesInGraph(unityObject, array, newArray);
+                    ReplaceAllReferencesInGraph(engineObject, array, newArray);
                 }
             }
             else if (typeof(IList).IsAssignableFrom(listType))
@@ -230,9 +236,9 @@ namespace OdinSerializer
             }
         }
 
-        private void ApplyDictionaryModifications(UnityEngine.Object unityObject)
+        private void ApplyDictionaryModifications(EngineObject engineObject)
         {
-            object dictionaryObj = GetInstanceFromPath(this.Path, unityObject);
+            object dictionaryObj = GetInstanceFromPath(this.Path, engineObject);
 
             if (dictionaryObj == null)
             {
@@ -383,7 +389,7 @@ namespace OdinSerializer
 
                 if (object.ReferenceEquals(currentInstance, null))
                 {
-                    //Debug.LogWarning("Failed to resolve modification path '" + path + "' at step '" + steps[i] + "'.");
+                    //DebugWrapper.LogWarning("Failed to resolve modification path '" + path + "' at step '" + steps[i] + "'.");
                     return null;
                 }
             }
@@ -513,7 +519,7 @@ namespace OdinSerializer
 
                 if (object.ReferenceEquals(currentInstance, null))
                 {
-                    //Debug.LogWarning("Failed to resolve prefab modification path '" + path + "' at step '" + steps[index] + "'.");
+                    //DebugWrapper.LogWarning("Failed to resolve prefab modification path '" + path + "' at step '" + steps[index] + "'.");
                     return;
                 }
 

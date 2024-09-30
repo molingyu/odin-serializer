@@ -31,6 +31,7 @@ namespace OdinSerializer.Editor
     using UnityEditor.SceneManagement;
     using UnityEngine;
     using UnityEngine.Scripting;
+    using Utilities.Wrapper;
 
     public static class AOTSupportUtilities
     {
@@ -52,35 +53,35 @@ namespace OdinSerializer.Editor
 
                 if (scanBuildScenes && !scanner.ScanBuildScenes(includeSceneDependencies: true, showProgressBar: true))
                 {
-                    Debug.Log("Project scan canceled while scanning scenes and their dependencies.");
+                    DebugWrapper.Log("Project scan canceled while scanning scenes and their dependencies.");
                     serializedTypes = null;
                     return false;
                 }
 
                 if (scanResources && !scanner.ScanAllResources(includeResourceDependencies: true, showProgressBar: true, resourcesPaths: resourcesToScan))
                 {
-                    Debug.Log("Project scan canceled while scanning resources and their dependencies.");
+                    DebugWrapper.Log("Project scan canceled while scanning resources and their dependencies.");
                     serializedTypes = null;
                     return false;
                 }
 
                 if (scanAllAssetBundles && !scanner.ScanAllAssetBundles(showProgressBar: true))
                 {
-                    Debug.Log("Project scan canceled while scanning asset bundles and their dependencies.");
+                    DebugWrapper.Log("Project scan canceled while scanning asset bundles and their dependencies.");
                     serializedTypes = null;
                     return false;
                 }
 
                 if (scanPreloadedAssets && !scanner.ScanPreloadedAssets(showProgressBar: true))
                 {
-                    Debug.Log("Project scan canceled while scanning preloaded assets and their dependencies.");
+                    DebugWrapper.Log("Project scan canceled while scanning preloaded assets and their dependencies.");
                     serializedTypes = null;
                     return false;
                 }
 
                 if (scanAddressables && !scanner.ScanAllAddressables(includeAssetDependencies: true, showProgressBar: true))
                 {
-                    Debug.Log("Project scan canceled while scanning addressable assets and their dependencies.");
+                    DebugWrapper.Log("Project scan canceled while scanning addressable assets and their dependencies.");
                     serializedTypes = null;
                     return false;
                 }
@@ -192,7 +193,7 @@ namespace OdinSerializer.Editor
                 
                 if (serializedType.IsGenericType && (serializedType.IsGenericTypeDefinition || !serializedType.IsFullyConstructedGenericType()))
                 {
-                    Debug.LogError("Skipping type '" + serializedType.GetNiceFullName() + "'! Type is a generic type definition, or its arguments contain generic parameters; type must be a fully constructed generic type.");
+                    DebugWrapper.LogError("Skipping type '" + serializedType.GetNiceFullName() + "'! Type is a generic type definition, or its arguments contain generic parameters; type must be a fully constructed generic type.");
                     continue;
                 }
 

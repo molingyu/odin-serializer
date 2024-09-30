@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="OdinSerializeAttribute.cs" company="Sirenix IVS">
+// <copyright file="RegisterDictionaryKeyPathProviderAttribute.cs" company="Sirenix IVS">
 // Copyright (c) 2018 Sirenix IVS
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +20,14 @@ namespace OdinSerializer
 {
     using System;
 
-    /// <summary>
-    /// Indicates that an instance field or auto-property should be serialized by Odin.
-    /// </summary>
-    /// <seealso cref="System.Attribute" />
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class OdinSerializeAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public sealed class RegisterDictionaryKeyPathProviderAttribute : Attribute
     {
+        public readonly Type ProviderType;
+
+        public RegisterDictionaryKeyPathProviderAttribute(Type providerType)
+        {
+            this.ProviderType = providerType;
+        }
     }
 }

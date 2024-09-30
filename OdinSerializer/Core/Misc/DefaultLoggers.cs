@@ -1,5 +1,7 @@
 ﻿namespace OdinSerializer
 {
+    using Utilities.Wrapper;
+
     /// <summary>
     /// Defines default loggers for serialization and deserialization. This class and all of its loggers are thread safe.
     /// </summary>
@@ -32,7 +34,7 @@
                     {
                         if (unityLogger == null)
                         {
-                            unityLogger = new CustomLogger(UnityEngine.Debug.LogWarning, UnityEngine.Debug.LogError, UnityEngine.Debug.LogException);
+                            unityLogger = new CustomLogger(DebugWrapper.LogWarning, DebugWrapper.LogError, DebugWrapper.LogException);
                         }
                     }
                 }

@@ -93,8 +93,11 @@ namespace OdinSerializer.Utilities
 #if UNITY_EDITOR
         private static Assembly EditorAssembly = typeof(UnityEditor.Editor).Assembly;
 #endif
+#if UNITY
         private static Assembly EngineAssembly = typeof(UnityEngine.Object).Assembly;
-
+#elif GODOT
+        private static readonly Assembly EngineAssembly = typeof(Godot.GodotObject).Assembly;
+#endif
         private static bool EmitIsIllegalForMember(MemberInfo member)
         {
 #if UNITY_EDITOR
@@ -107,15 +110,15 @@ namespace OdinSerializer.Utilities
         /// <summary>
         /// Creates a delegate which gets the value of a field. If emitting is not supported on the current platform, the delegate will use reflection to get the value.
         /// </summary>
-        /// <typeparam name="FieldType">The type of the field to get a value from.</typeparam>
+        /// <typeparam name="TFieldType">The type of the field to get a value from.</typeparam>
         /// <param name="fieldInfo">The <see cref="FieldInfo"/> instance describing the field to create a getter for.</param>
         /// <returns>A delegate which gets the value of the given field.</returns>
         /// <exception cref="System.ArgumentNullException">The fieldInfo parameter is null.</exception>
-        public static Func<FieldType> CreateStaticFieldGetter<FieldType>(FieldInfo fieldInfo)
+        public static Func<TFieldType> CreateStaticFieldGetter<TFieldType>(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
             {
-                throw new ArgumentNullException("fieldInfo");
+                throw new ArgumentNullException(nameof(fieldInfo));
             }
 
             if (!fieldInfo.IsStatic)
@@ -127,7 +130,7 @@ namespace OdinSerializer.Utilities
 
             if (fieldInfo.IsLiteral)
             {
-                FieldType value = (FieldType)fieldInfo.GetValue(null);
+                TFieldType value = (TFieldType)fieldInfo.GetValue(null);
                 return () => value;
             }
 
@@ -135,7 +138,7 @@ namespace OdinSerializer.Utilities
             // Platform does not support emitting dynamic code
             return delegate ()
             {
-                return (FieldType)fieldInfo.GetValue(null);
+                return (TFieldType)fieldInfo.GetValue(null);
             };
 #else
             if (EmitIsIllegalForMember(fieldInfo))

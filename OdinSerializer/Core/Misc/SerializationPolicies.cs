@@ -21,7 +21,12 @@ namespace OdinSerializer
     using System;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+
+#if UNITY
     using UnityEngine;
+#elif GODOT
+    using Utilities.Wrapper;
+#endif
 
     /// <summary>
     /// Contains a set of default implementations of the <see cref="ISerializationPolicy"/> interface.
@@ -146,7 +151,7 @@ namespace OdinSerializer
                                     return true;
                                 }
 
-                                return member.IsDefined<SerializeField>(false) || member.IsDefined<OdinSerializeAttribute>(false) || (UnitySerializationUtility.SerializeReferenceAttributeType != null && member.IsDefined(UnitySerializationUtility.SerializeReferenceAttributeType, false));
+                                return member.IsDefined<SerializeField>(false) || member.IsDefined<OdinSerializeAttribute>(false);
                             });
                         }
                     }
@@ -191,7 +196,7 @@ namespace OdinSerializer
                                     return true;
                                 }
 
-                                return member.IsDefined<SerializeField>(false) || member.IsDefined<OdinSerializeAttribute>(false) || (UnitySerializationUtility.SerializeReferenceAttributeType != null && member.IsDefined(UnitySerializationUtility.SerializeReferenceAttributeType, false));
+                                return member.IsDefined<SerializeField>(false) || member.IsDefined<OdinSerializeAttribute>(false);
                             });
                         }
                     }

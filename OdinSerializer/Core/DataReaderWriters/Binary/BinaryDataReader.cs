@@ -18,7 +18,7 @@
 
 namespace OdinSerializer
 {
-    using OdinSerializer.Utilities.Unsafe;
+    using Utilities.Unsafe;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -36,7 +36,7 @@ namespace OdinSerializer
             { typeof(char),     (Func<byte[], int, char>)      ((b, i) => (char)ProperBitConverter.ToUInt16(b, i)) },
             { typeof(byte),     (Func<byte[], int, byte>)      ((b, i) => b[i]) },
             { typeof(sbyte),    (Func<byte[], int, sbyte>)     ((b, i) => (sbyte)b[i]) },
-            { typeof(bool),     (Func<byte[], int, bool>)      ((b, i) => (b[i] == 0) ? false : true) },
+            { typeof(bool),     (Func<byte[], int, bool>)      ((b, i) => (b[i] != 0)) },
             { typeof(short),    (Func<byte[], int, short>)     ProperBitConverter.ToInt16 },
             { typeof(int),      (Func<byte[], int, int>)       ProperBitConverter.ToInt32 },
             { typeof(long),     (Func<byte[], int, long>)      ProperBitConverter.ToInt64 },
@@ -360,7 +360,7 @@ namespace OdinSerializer
         }
 
         /// <summary>
-        /// Tries to enters an array node. This will succeed if the next entry is an <see cref="EntryType.StartOfArray" />.
+        /// Tries to enter an array node. This will succeed if the next entry is an <see cref="EntryType.StartOfArray" />.
         /// <para />
         /// This call MUST (eventually) be followed by a corresponding call to <see cref="IDataReader.ExitArray()" /><para />
         /// This call will change the values of the <see cref="IDataReader.IsInArrayNode" />, <see cref="IDataReader.CurrentNodeName" />, <see cref="IDataReader.CurrentNodeId" /> and <see cref="IDataReader.CurrentNodeDepth" /> properties to the correct values for the current array node.

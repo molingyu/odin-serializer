@@ -16,6 +16,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+#if UNITY
 namespace OdinSerializer.Utilities
 {
     using System;
@@ -65,3 +66,4 @@ namespace OdinSerializer.Utilities
         }
     }
 }
+#endif

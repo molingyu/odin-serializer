@@ -21,6 +21,7 @@
 namespace OdinSerializer.Editor
 {
     using Utilities;
+    using Utilities.Wrapper;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -266,12 +267,12 @@ namespace OdinSerializer.Editor
             }
             catch (NotSupportedException ex)
             {
-                Debug.LogWarning("Could not AOT scan Addressables assets due to missing APIs: " + ex.Message);
+                DebugWrapper.LogWarning("Could not AOT scan Addressables assets due to missing APIs: " + ex.Message);
             }
             catch (Exception ex)
             {
-                Debug.LogError("Scanning addressables failed with the following exception...");
-                Debug.LogException(ex);
+                DebugWrapper.LogError("Scanning addressables failed with the following exception...");
+                DebugWrapper.LogException(ex);
             }
             finally
             {
@@ -324,8 +325,8 @@ namespace OdinSerializer.Editor
                         }
                         catch (MissingReferenceException ex)
                         {
-                            Debug.LogError("A resource threw a missing reference exception when scanning. Skipping resource and continuing scan.", resource);
-                            Debug.LogException(ex, resource);
+                            DebugWrapper.LogError("A resource threw a missing reference exception when scanning. Skipping resource and continuing scan.", resource);
+                            DebugWrapper.LogException(ex, resource);
                             continue;
                         }
                     }
@@ -353,8 +354,8 @@ namespace OdinSerializer.Editor
                     }
                     catch (MissingReferenceException ex)
                     {
-                        Debug.LogError("A resource '" + resourcePaths[i] + "' threw a missing reference exception when scanning. Skipping resource and continuing scan.");
-                        Debug.LogException(ex);
+                        DebugWrapper.LogError("A resource '" + resourcePaths[i] + "' threw a missing reference exception when scanning. Skipping resource and continuing scan.");
+                        DebugWrapper.LogException(ex);
                         continue;
                     }
                 }
@@ -421,7 +422,7 @@ namespace OdinSerializer.Editor
 
                         if (!System.IO.File.Exists(scenePath))
                         {
-                            Debug.LogWarning("Skipped AOT scanning scene '" + scenePath + "' for a file not existing at the scene path.");
+                            DebugWrapper.LogWarning("Skipped AOT scanning scene '" + scenePath + "' for a file not existing at the scene path.");
                             continue;
                         }
 
@@ -433,7 +434,7 @@ namespace OdinSerializer.Editor
                         }
                         catch
                         {
-                            Debug.LogWarning("Skipped AOT scanning scene '" + scenePath + "' for throwing exceptions when trying to load it.");
+                            DebugWrapper.LogWarning("Skipped AOT scanning scene '" + scenePath + "' for throwing exceptions when trying to load it.");
                             continue;
                         }
 
@@ -817,7 +818,7 @@ namespace OdinSerializer.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex);
+                    DebugWrapper.LogException(ex);
                     IsEditorOnlyAssembly_Cache[assembly] = false;
                 }
             }

@@ -22,6 +22,7 @@ namespace OdinSerializer
     using System;
     using System.Collections.Generic;
     using Utilities;
+    using Utilities.Wrapper;
     using System.Linq;
     using UnityEngine;
     using System.Reflection;
@@ -186,7 +187,7 @@ namespace OdinSerializer
 
                 if (TypeToKeyPathProviders.ContainsKey(keyType))
                 {
-                    Debug.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': A previous provider '" + TypeToKeyPathProviders[keyType].GetType().GetNiceFullName() + "' was already registered for the key type '" + keyType.GetNiceFullName() + "'.");
+                    DebugWrapper.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': A previous provider '" + TypeToKeyPathProviders[keyType].GetType().GetNiceFullName() + "' was already registered for the key type '" + keyType.GetNiceFullName() + "'.");
                     continue;
                 }
 
@@ -199,8 +200,8 @@ namespace OdinSerializer
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex);
-                    Debug.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': An exception of type '" + ex.GetType() + "' was thrown when trying to instantiate a provider instance.");
+                    DebugWrapper.LogException(ex);
+                    DebugWrapper.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': An exception of type '" + ex.GetType() + "' was thrown when trying to instantiate a provider instance.");
                     continue;
                 }
 
@@ -210,8 +211,8 @@ namespace OdinSerializer
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex);
-                    Debug.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': An exception of type '" + ex.GetType() + "' was thrown when trying to get the provider ID string.");
+                    DebugWrapper.LogException(ex);
+                    DebugWrapper.LogWarning("Ignoring dictionary key path provider '" + providerType.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': An exception of type '" + ex.GetType() + "' was thrown when trying to get the provider ID string.");
                     continue;
                 }
 
@@ -250,7 +251,7 @@ namespace OdinSerializer
 
         private static void LogInvalidKeyPathProvider(Type type, Assembly assembly, string reason)
         {
-            Debug.LogError("Invalid dictionary key path provider '" + type.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': " + reason);
+            DebugWrapper.LogError("Invalid dictionary key path provider '" + type.GetNiceFullName() + "' registered on assembly '" + assembly.GetName().Name + "': " + reason);
         }
 
         /// <summary>

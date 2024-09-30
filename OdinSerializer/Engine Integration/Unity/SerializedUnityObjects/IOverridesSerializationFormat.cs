@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="OdinSerializeAttribute.cs" company="Sirenix IVS">
+// <copyright file="IOverridesSerializationFormat.cs" company="Sirenix IVS">
 // Copyright (c) 2018 Sirenix IVS
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,14 @@
 
 namespace OdinSerializer
 {
-    using System;
-
     /// <summary>
-    /// Indicates that an instance field or auto-property should be serialized by Odin.
+    /// Indicates that an Odin-serialized Unity object controls its own serialization format. Every time it is serialized, it will be asked which format to use.
     /// </summary>
-    /// <seealso cref="System.Attribute" />
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class OdinSerializeAttribute : Attribute
+    public interface IOverridesSerializationFormat
     {
+        /// <summary>
+        /// Gets the format to use for serialization.
+        /// </summary>
+        DataFormat GetFormatToSerializeAs(bool isPlayer);
     }
 }

@@ -18,6 +18,7 @@
 
 //#define PREFAB_DEBUG
 
+#if UNITY
 namespace OdinSerializer
 {
     using System.Globalization;
@@ -28,11 +29,16 @@ namespace OdinSerializer
     using System.Reflection;
     using System.Text;
     using Utilities;
+    using Utilities.Wrapper;
     using UnityEngine;
     using UnityEngine.Events;
     using System.Runtime.CompilerServices;
     using UnityEngine.Assertions;
     using System.Runtime.Serialization;
+
+#if UNITY
+    using SerializeField = UnityEngine.SerializeField;
+#endif
 
 #if PREFAB_DEBUG && !SIRENIX_INTERNAL
 #warning "Prefab serialization debugging is enabled outside of Sirenix internal. Are you sure this is right?"
@@ -693,7 +699,7 @@ namespace OdinSerializer
                             }
                             else if (prefab.GetType() != typeof(UnityEngine.Object))
                             {
-                                //Debug.LogWarning(unityObject.name + " is a prefab instance, but the prefab reference type " + prefab.GetType().GetNiceName() + " does not implement the interface " + typeof(ISupportsPrefabSerialization).GetNiceName() + "; non-Unity-serialized data will most likely not be updated properly from the prefab any more.");
+                                //DebugWrapper.LogWarning(unityObject.name + " is a prefab instance, but the prefab reference type " + prefab.GetType().GetNiceName() + " does not implement the interface " + typeof(ISupportsPrefabSerialization).GetNiceName() + "; non-Unity-serialized data will most likely not be updated properly from the prefab any more.");
                                 //prefab = null;
 
                                 prefabData = data;
@@ -761,11 +767,11 @@ namespace OdinSerializer
                             modificationsToKeep = SerializePrefabModifications(modificationsList, ref modificationsReferencedUnityObjects);
 
 #if PREFAB_DEBUG
-                            Debug.Log("Setting new modifications: ", unityObject);
+                            DebugWrapper.Log("Setting new modifications: ", unityObject);
 
                             foreach (var mod in modificationsToKeep)
                             {
-                                Debug.Log("    " + mod);
+                                DebugWrapper.Log("    " + mod);
                             }
 #endif
 
@@ -932,7 +938,7 @@ namespace OdinSerializer
                     // We pretend as though we're serializing outside of the editor
                     if (format == DataFormat.Nodes)
                     {
-                        Debug.LogWarning("The serialization format '" + format.ToString() + "' is disabled in play mode, and when building a player. Defaulting to the format '" + DataFormat.Binary.ToString() + "' instead.");
+                        DebugWrapper.LogWarning("The serialization format '" + format.ToString() + "' is disabled in play mode, and when building a player. Defaulting to the format '" + DataFormat.Binary.ToString() + "' instead.");
                         format = DataFormat.Binary;
                     }
 
@@ -1018,7 +1024,7 @@ namespace OdinSerializer
 
                 if (format == DataFormat.Nodes)
                 {
-                    Debug.LogWarning("The serialization format '" + format.ToString() + "' is disabled outside of the editor. Defaulting to the format '" + DataFormat.Binary.ToString() + "' instead.");
+                    DebugWrapper.LogWarning("The serialization format '" + format.ToString() + "' is disabled outside of the editor. Defaulting to the format '" + DataFormat.Binary.ToString() + "' instead.");
                     format = DataFormat.Binary;
                 }
 
@@ -1044,7 +1050,7 @@ namespace OdinSerializer
 
             if (serializedDataField == null)
             {
-                Debug.LogError("Could not find a field of type " + typeof(SerializationData).Name + " on the serializing type " + unityObjectType.GetNiceName() + " when trying to manually set prefab modifications. It is possible that prefab instances of this type will be corrupted if changes are ever applied to prefab.", prefab);
+                DebugWrapper.LogError("Could not find a field of type " + typeof(SerializationData).Name + " on the serializing type " + unityObjectType.GetNiceName() + " when trying to manually set prefab modifications. It is possible that prefab instances of this type will be corrupted if changes are ever applied to prefab.", prefab);
             }
             else
             {
@@ -1129,7 +1135,7 @@ namespace OdinSerializer
                 EditorApplication_delayCall_Alias += () =>
                 {
 #if PREFAB_DEBUG
-                    Debug.Log("DELAYED: Actually setting prefab modifications:");
+                    DebugWrapper.Log("DELAYED: Actually setting prefab modifications:");
                     foreach (var mod in mods)
                     {
                         if (!mod.propertyPath.StartsWith("serializationData")) continue;
@@ -1152,7 +1158,7 @@ namespace OdinSerializer
                             }
                         }
 
-                        Debug.Log("   " + mod.target.name + " (" + index + ") " + mod.propertyPath + ": " + mod.value);
+                        DebugWrapper.Log("   " + mod.target.name + " (" + index + ") " + mod.propertyPath + ": " + mod.value);
                     }
 #endif
 
@@ -1188,7 +1194,7 @@ namespace OdinSerializer
 
             if (format == DataFormat.Nodes)
             {
-                Debug.LogError("The serialization data format '" + format.ToString() + "' is not supported by this method. You must create your own writer.");
+                DebugWrapper.LogError("The serialization data format '" + format.ToString() + "' is not supported by this method. You must create your own writer.");
                 return;
             }
 
@@ -1230,14 +1236,14 @@ namespace OdinSerializer
                          */
                         if (GlobalSerializationConfig.HasInstanceLoaded)
                         {
-                            //Debug.Log("Serializing " + unityObject.GetType().Name + " WITH loaded!");
+                            //DebugWrapper.Log("Serializing " + unityObject.GetType().Name + " WITH loaded!");
                             con.Value.Config.DebugContext.ErrorHandlingPolicy = GlobalSerializationConfig.Instance.ErrorHandlingPolicy;
                             con.Value.Config.DebugContext.LoggingPolicy = GlobalSerializationConfig.Instance.LoggingPolicy;
                             con.Value.Config.DebugContext.Logger = GlobalSerializationConfig.Instance.Logger;
                         }
                         else
                         {
-                            //Debug.Log("Serializing " + unityObject.GetType().Name + " WITHOUT loaded!");
+                            //DebugWrapper.Log("Serializing " + unityObject.GetType().Name + " WITHOUT loaded!");
                             con.Value.Config.DebugContext.ErrorHandlingPolicy = ErrorHandlingPolicy.Resilient;
                             con.Value.Config.DebugContext.LoggingPolicy = LoggingPolicy.LogErrors;
                             con.Value.Config.DebugContext.Logger = DefaultLoggers.UnityLogger;
@@ -1277,18 +1283,18 @@ namespace OdinSerializer
 
             //    if (com.gameObject.scene.IsValid())
             //    {
-            //        Debug.Log("Serializing scene " + com.gameObject.scene.name + ": " + com, com);
+            //        DebugWrapper.Log("Serializing scene " + com.gameObject.scene.name + ": " + com, com);
             //    }
             //    else
             //    {
             //        var path = UnityEditor.AssetDatabase.GetAssetPath(com);
 
-            //        Debug.Log("Serializing prefab '" + path + "': " + com, com);
+            //        DebugWrapper.Log("Serializing prefab '" + path + "': " + com, com);
             //    }
             //}
             //else
             //{
-            //    Debug.Log("Serializing " + unityObject, unityObject);
+            //    DebugWrapper.Log("Serializing " + unityObject, unityObject);
             //}
 
             try
@@ -1338,7 +1344,7 @@ namespace OdinSerializer
             }
             catch (Exception ex)
             {
-                Debug.LogException(new Exception("Exception thrown while serializing type '" + unityObject.GetType().GetNiceFullName() + "': " + ex.Message, ex));
+                DebugWrapper.LogException(new Exception("Exception thrown while serializing type '" + unityObject.GetType().GetNiceFullName() + "': " + ex.Message, ex));
             }
         }
 
@@ -1387,7 +1393,7 @@ namespace OdinSerializer
             }
 
             // TODO: This fix needs to be applied for edge-cases! But we also need a way to only do it while in the Editor! and if UNITY_EDITOR is not enough.
-            //Debug.Log("Deserializing" + new System.Diagnostics.StackTrace().ToString(), unityObject);
+            //DebugWrapper.Log("Deserializing" + new System.Diagnostics.StackTrace().ToString(), unityObject);
             //var prefabDataObject = data.Prefab as ISupportsPrefabSerialization;
             //if (prefabDataObject != null && data.PrefabModifications != null && UnityEditor.AssetDatabase.Contains(data.Prefab))
             //{
@@ -1443,7 +1449,7 @@ namespace OdinSerializer
                     try
                     {
                         var bytesStr = ProperBitConverter.BytesToHexString(data.SerializedBytes);
-                        Debug.LogWarning("Serialization data has only bytes stored, but the serialized format is marked as being 'Nodes', which is incompatible with data stored as a byte array. Based on the appearance of the serialized bytes, Odin has guessed that the data format is '" + formatGuess + "', and will attempt to deserialize the bytes using that format. The serialized bytes follow, converted to a hex string: " + bytesStr);
+                        DebugWrapper.LogWarning("Serialization data has only bytes stored, but the serialized format is marked as being 'Nodes', which is incompatible with data stored as a byte array. Based on the appearance of the serialized bytes, Odin has guessed that the data format is '" + formatGuess + "', and will attempt to deserialize the bytes using that format. The serialized bytes follow, converted to a hex string: " + bytesStr);
                     }
                     catch { }
 
@@ -1480,14 +1486,14 @@ namespace OdinSerializer
                          */
                         if (GlobalSerializationConfig.HasInstanceLoaded)
                         {
-                            //Debug.Log("Deserializing " + unityObject.GetType().Name + " WITH loaded!");
+                            //DebugWrapper.Log("Deserializing " + unityObject.GetType().Name + " WITH loaded!");
                             context.Config.DebugContext.ErrorHandlingPolicy = GlobalSerializationConfig.Instance.ErrorHandlingPolicy;
                             context.Config.DebugContext.LoggingPolicy = GlobalSerializationConfig.Instance.LoggingPolicy;
                             context.Config.DebugContext.Logger = GlobalSerializationConfig.Instance.Logger;
                         }
                         else
                         {
-                            //Debug.Log("Deserializing " + unityObject.GetType().Name + " WITHOUT loaded!");
+                            //DebugWrapper.Log("Deserializing " + unityObject.GetType().Name + " WITHOUT loaded!");
                             context.Config.DebugContext.ErrorHandlingPolicy = ErrorHandlingPolicy.Resilient;
                             context.Config.DebugContext.LoggingPolicy = LoggingPolicy.LogErrors;
                             context.Config.DebugContext.Logger = DefaultLoggers.UnityLogger;
@@ -1617,7 +1623,7 @@ namespace OdinSerializer
                         // We shouldn't complain in this case, as Unity itself will make it clear to the user that there is something wrong.
                         else if (data.Prefab.GetType() != typeof(UnityEngine.Object))
                         {
-                            Debug.LogWarning("The type " + data.Prefab.GetType().GetNiceName() + " no longer supports special prefab serialization (the interface " + typeof(ISupportsPrefabSerialization).GetNiceName() + ") upon deserialization of an instance of a prefab; prefab data may be lost. Has a type been lost?");
+                            DebugWrapper.LogWarning("The type " + data.Prefab.GetType().GetNiceName() + " no longer supports special prefab serialization (the interface " + typeof(ISupportsPrefabSerialization).GetNiceName() + ") upon deserialization of an instance of a prefab; prefab data may be lost. Has a type been lost?");
                         }
                     }
 
@@ -1677,7 +1683,7 @@ namespace OdinSerializer
             }
             catch (FormatException)
             {
-                Debug.LogError("Invalid base64 string when deserializing data: " + base64Bytes);
+                DebugWrapper.LogError("Invalid base64 string when deserializing data: " + base64Bytes);
             }
 
             if (bytes != null)
@@ -1705,7 +1711,7 @@ namespace OdinSerializer
             {
                 try
                 {
-                    Debug.LogError("The serialization data format '" + format.ToString() + "' is not supported by this method. You must create your own reader.");
+                    DebugWrapper.LogError("The serialization data format '" + format.ToString() + "' is not supported by this method. You must create your own reader.");
                 }
                 catch { }
                 return;
@@ -1749,14 +1755,14 @@ namespace OdinSerializer
                          */
                         if (GlobalSerializationConfig.HasInstanceLoaded)
                         {
-                            //Debug.Log("Deserializing " + unityObject.GetType().Name + " WITH loaded!");
+                            //DebugWrapper.Log("Deserializing " + unityObject.GetType().Name + " WITH loaded!");
                             con.Value.Config.DebugContext.ErrorHandlingPolicy = GlobalSerializationConfig.Instance.ErrorHandlingPolicy;
                             con.Value.Config.DebugContext.LoggingPolicy = GlobalSerializationConfig.Instance.LoggingPolicy;
                             con.Value.Config.DebugContext.Logger = GlobalSerializationConfig.Instance.Logger;
                         }
                         else
                         {
-                            //Debug.Log("Deserializing " + unityObject.GetType().Name + " WITHOUT loaded!");
+                            //DebugWrapper.Log("Deserializing " + unityObject.GetType().Name + " WITHOUT loaded!");
                             con.Value.Config.DebugContext.ErrorHandlingPolicy = ErrorHandlingPolicy.Resilient;
                             con.Value.Config.DebugContext.LoggingPolicy = LoggingPolicy.LogErrors;
                             con.Value.Config.DebugContext.Logger = DefaultLoggers.UnityLogger;
@@ -1861,12 +1867,12 @@ namespace OdinSerializer
                                     UnityEditor.AssetDatabase.SaveAssets();
                                 }
 
-                                Debug.LogError(log, toPing);
+                                DebugWrapper.LogError(log, toPing);
                             };
                         }
                         catch
                         {
-                            Debug.LogWarning("DELAYED SERIALIZATION LOG: Delaying log to main thread failed, likely due to a race condition when subscribing to EditorApplication.delayCall; this cannot be guarded against from our code. Try to provoke the error again and hope to get luckier next time!");
+                            DebugWrapper.LogWarning("DELAYED SERIALIZATION LOG: Delaying log to main thread failed, likely due to a race condition when subscribing to EditorApplication.delayCall; this cannot be guarded against from our code. Try to provoke the error again and hope to get luckier next time!");
                         }
 #endif
 
@@ -1941,7 +1947,7 @@ namespace OdinSerializer
             }
             catch (Exception ex)
             {
-                Debug.LogException(new Exception("Exception thrown while deserializing type '" + unityObject.GetType().GetNiceFullName() + "': " + ex.Message, ex));
+                DebugWrapper.LogException(new Exception("Exception thrown while deserializing type '" + unityObject.GetType().GetNiceFullName() + "': " + ex.Message, ex));
             }
         }
 
@@ -2138,7 +2144,7 @@ namespace OdinSerializer
                     {
                         if (entryName == null)
                         {
-                            Debug.LogError("Unexpected entry of type " + entryType + " without a name.");
+                            DebugWrapper.LogError("Unexpected entry of type " + entryType + " without a name.");
                             reader.SkipEntry();
                             continue;
                         }
@@ -2185,7 +2191,7 @@ namespace OdinSerializer
                         }
                         else
                         {
-                            Debug.LogError("Unexpected entry name '" + entryName + "' while deserializing prefab modifications.");
+                            DebugWrapper.LogError("Unexpected entry name '" + entryName + "' while deserializing prefab modifications.");
                             reader.SkipEntry();
                         }
                     }
@@ -2196,7 +2202,7 @@ namespace OdinSerializer
                         // Those invalid prefab modifications should be removed, which they seem to be in most cases, but apparently not some.
                         //
                         // And debugging a warning here makes give errors because of the bug in VS Bridge. And prevents people from bulding.
-                        // Debug.LogWarning("Error when deserializing prefab modification; no path found. Modification lost; string was: '" + modStr + "'.");
+                        // DebugWrapper.LogWarning("Error when deserializing prefab modification; no path found. Modification lost; string was: '" + modStr + "'.");
                         continue;
                     }
 
@@ -2220,8 +2226,8 @@ namespace OdinSerializer
             }
 
 #if PREFAB_DEBUG
-            //Debug.Log((Event.current == null ? "NO EVENT" : Event.current.type.ToString()) + ": Registering " + (modifications == null ? 0 : modifications.Count) + " modifications to " + unityObject.name + ":");
-            Debug.Log("Registering " + (modifications == null ? 0 : modifications.Count) + " prefab modifications: ");
+            //DebugWrapper.Log((Event.current == null ? "NO EVENT" : Event.current.type.ToString()) + ": Registering " + (modifications == null ? 0 : modifications.Count) + " modifications to " + unityObject.name + ":");
+            DebugWrapper.Log("Registering " + (modifications == null ? 0 : modifications.Count) + " prefab modifications: ");
 
             for (int i = 0; i < modifications.Count; i++)
             {
@@ -2229,11 +2235,11 @@ namespace OdinSerializer
 
                 if (mod.ModificationType == PrefabModificationType.ListLength)
                 {
-                    Debug.Log("    LENGTH@" + mod.Path + ": " + mod.NewLength);
+                    DebugWrapper.Log("    LENGTH@" + mod.Path + ": " + mod.NewLength);
                 }
                 else if (mod.ModificationType == PrefabModificationType.Dictionary)
                 {
-                    Debug.Log("    DICT@" + mod.Path + ": (add: " + (mod.DictionaryKeysAdded != null ? mod.DictionaryKeysAdded.Length : 0) + ") -- (remove: " + (mod.DictionaryKeysRemoved != null ? mod.DictionaryKeysRemoved.Length : 0) + ")");
+                    DebugWrapper.Log("    DICT@" + mod.Path + ": (add: " + (mod.DictionaryKeysAdded != null ? mod.DictionaryKeysAdded.Length : 0) + ") -- (remove: " + (mod.DictionaryKeysRemoved != null ? mod.DictionaryKeysRemoved.Length : 0) + ")");
                 }
                 else
                 {
@@ -2252,7 +2258,7 @@ namespace OdinSerializer
                         str = mod.ModificationType.ToString();
                     }
 
-                    Debug.Log("    VALUE@" + mod.Path + ": " + str);
+                    DebugWrapper.Log("    VALUE@" + mod.Path + ": " + str);
                 }
             }
 #endif
@@ -2328,7 +2334,7 @@ namespace OdinSerializer
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex);
+                    DebugWrapper.LogException(ex);
                     return null;
                 }
             }
@@ -2389,8 +2395,8 @@ namespace OdinSerializer
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("The following exception was thrown when trying to apply a prefab modification for path '" + mod.Path + "':");
-                    Debug.LogException(ex);
+                    DebugWrapper.Log("The following exception was thrown when trying to apply a prefab modification for path '" + mod.Path + "':");
+                    DebugWrapper.LogException(ex);
                 }
             }
         }
@@ -2589,7 +2595,7 @@ namespace OdinSerializer
 
                 //if (object.ReferenceEquals(component, null))
                 //{
-                //    Debug.LogError("A non-component type Unity object (type '" + obj.GetType() + "') is acting like a prefab. What?", obj);
+                //    DebugWrapper.LogError("A non-component type Unity object (type '" + obj.GetType() + "') is acting like a prefab. What?", obj);
                 //    return false;
                 //}
 
@@ -2741,7 +2747,7 @@ namespace OdinSerializer
                     CachedDeserializedModifications.Remove(lowestObj);
                     if (!CachedDeserializedModificationTimes.Remove(lowestObj))
                     {
-                        Debug.LogError("A Unity object instance of type '" + lowestObj.GetType().GetNiceName() + "' has likely become corrupt or destroyed somehow, yet deserialization has been invoked for it. If you're in the editor, you can click this log message to attempt to highlight the object. (It probably won't work, but there's a chance. If the highlighting doesn't work, the object instance is so broken that Odin cannot give you any more info about it than this message contains. Good luck!)", lowestObj as UnityEngine.Object);
+                        DebugWrapper.LogError("A Unity object instance of type '" + lowestObj.GetType().GetNiceName() + "' has likely become corrupt or destroyed somehow, yet deserialization has been invoked for it. If you're in the editor, you can click this log message to attempt to highlight the object. (It probably won't work, but there's a chance. If the highlighting doesn't work, the object instance is so broken that Odin cannot give you any more info about it than this message contains. Good luck!)", lowestObj as UnityEngine.Object);
 
                         // There are bad keys in the dictionaries; we have to clear them and just rebuild the cache.
                         // This theory isn't confirmed, but it's probably because UnityEngine.Object.GetHashCode() 
@@ -2823,3 +2829,4 @@ namespace OdinSerializer
 #endif
     }
 }
+#endif

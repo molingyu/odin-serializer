@@ -566,14 +566,14 @@ namespace OdinSerializer.Editor
                 this.scannedPathsNoDependencies.Add(assetPath);
             }
 
-            if (assetPath.EndsWith(".unity"))
+            if (assetPath.EndsWith(".unity") || assetPath.EndsWith(".scene"))
             {
                 return this.ScanScenes(new string[] { assetPath }, includeAssetDependencies, false);
             }
 
             if (!(assetPath.EndsWith(".asset") || assetPath.EndsWith(".prefab")))
             {
-                // ScanAsset can only scan .unity, .asset and .prefab assets.
+                // ScanAsset can only scan .unity, .scene, .asset and .prefab assets.
                 return false;
             }
 

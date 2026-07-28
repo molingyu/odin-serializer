@@ -35,6 +35,7 @@ namespace OdinSerializer
     using System.Runtime.CompilerServices;
     using UnityEngine.Assertions;
     using System.Runtime.Serialization;
+    using System.Collections;
 
 #if UNITY
     using SerializeField = UnityEngine.SerializeField;
@@ -400,15 +401,29 @@ namespace OdinSerializer
                 return true;
             }
 
-            if (!typeof(UnityEngine.Object).IsAssignableFrom(fieldInfo.FieldType) && fieldInfo.FieldType == fieldInfo.DeclaringType)
+            Type fieldType = fieldInfo.FieldType;
+
+            if (!typeof(UnityEngine.Object).IsAssignableFrom(fieldType) && fieldType == fieldInfo.DeclaringType)
             {
                 // Unity will not serialize references that are obviously cyclical
                 return false;
             }
 
-            if (!(fieldInfo.IsPublic || fieldInfo.IsDefined<SerializeField>()))
+            bool hasSerializeField = fieldInfo.IsDefined(typeof(SerializeField), false);
+
+            if (!(fieldInfo.IsPublic || hasSerializeField))
             {
                 return false;
+            }
+
+            if (UnityVersion.IsVersionOrGreater(6000, 6))
+            {
+                // Unity only serializes dictionaries marked with [SerializeField], even if the field is public.
+                // So if we don't have serialized field, but we're a dictionary, we will not be serialized.
+                if (!hasSerializeField && fieldType.IsGenericType && !fieldType.IsGenericTypeDefinition && fieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    return false;
+                }
             }
 
             if (fieldInfo.IsDefined<FixedBufferAttribute>())
@@ -512,6 +527,7 @@ namespace OdinSerializer
                 return type.GetArrayRank() == 1
                     && !elementType.IsArray
                     && !elementType.ImplementsOpenGenericClass(typeof(List<>))
+                    && !elementType.ImplementsOpenGenericClass(typeof(Dictionary<,>))
                     && GuessIfUnityWillSerialize(elementType);
             }
 
@@ -519,11 +535,36 @@ namespace OdinSerializer
             {
                 // Unity does not support lists or arrays in lists.
                 var elementType = type.GetArgumentsOfInheritedOpenGenericClass(typeof(List<>))[0];
-                if (elementType.IsArray || elementType.ImplementsOpenGenericClass(typeof(List<>)))
+                if (elementType.IsArray || elementType.ImplementsOpenGenericClass(typeof(List<>)) || elementType.ImplementsOpenGenericClass(typeof(Dictionary<,>)))
                 {
                     return false;
                 }
                 return GuessIfUnityWillSerialize(elementType);
+            }
+
+            if (UnityVersion.IsVersionOrGreater(6000, 6))
+            {
+                if (type.IsGenericType && !type.IsGenericTypeDefinition && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    var elementTypes = type.GetArgumentsOfInheritedOpenGenericClass(typeof(Dictionary<,>));
+
+                    var key = elementTypes[0];
+                    var value = elementTypes[1];
+
+                    // Keys cannot implement IEnumerable, but an exception is made for strings.
+                    if (key != typeof(string) && typeof(IEnumerable).IsAssignableFrom(key))
+                    {
+                        return false;
+                    }
+
+                    // Dictionary value cannot directly be dictionaries, but note that they *can* be arrays or lists.
+                    if (value.ImplementsOpenGenericClass(typeof(Dictionary<,>)))
+                    {
+                        return false;
+                    }
+
+                    return GuessIfUnityWillSerialize(key) && GuessIfUnityWillSerialize(value);
+                }
             }
 
             if (type.Assembly.FullName.StartsWith("UnityEngine", StringComparison.InvariantCulture) || type.Assembly.FullName.StartsWith("UnityEditor", StringComparison.InvariantCulture))
@@ -1920,6 +1961,26 @@ namespace OdinSerializer
                     {
                         Type expectedType = FormatterUtilities.GetContainedType(member);
                         Serializer serializer = Serializer.Get(expectedType);
+
+                        #if UNITY_EDITOR
+                        if (UnityVersion.IsVersionOrGreater(6000, 6))
+                        {
+                            bool odinSerializesUnityFields = policyOverride != null && policyOverride.OdinSerializesUnityFields;
+
+                            if (!odinSerializesUnityFields && GuessIfUnityWillSerialize(member) && !member.IsDefined(typeof(OdinSerializeAttribute), false) && expectedType.IsGenericType && !expectedType.IsGenericTypeDefinition && expectedType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                            {
+                                Debug.LogWarning($"Odin is deserializing data for a Unity-serializable dictionary into field '{member.DeclaringType.GetNiceName()}.{member.Name}'." +
+                                    $" This field is now also serialized by Unity, as Unity has added dictionary serialization support in 6000.6." +
+                                    $" Therefore, going forward this dictionary field will be serialized by Unity instead of Odin - this *may* lead" +
+                                    $" to data loss in certain rare cases where Odin serialization behaviour is depended on somewhere inside this dictionary." +
+                                    $" If you want Odin to continue serializing this dictionary, please force Odin serialization via an attribute setup like" +
+                                    $" [NonSerialized, OdinSerialize] on the field." +
+                                    $"\n\nIf this message keeps reappearing, this asset has not yet been re-serialized. You can force the matter by dirtying" +
+                                    $" and resaving the specific containing asset, or by calling AssetDatabase.ForceReserializeAssets(); which will resave all" +
+                                    $" assets in the project.");
+                            }
+                        }
+                        #endif
 
                         try
                         {

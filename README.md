@@ -75,10 +75,55 @@ player.Deserialize();
 Set `CaptureEngineProperties` (default `true`) to also capture engine ClassDB properties
 (transform, visibility, exported members) through the generated engine property registry.
 
-### Serializing regular C# objects
+### How Odin and Godot share the work
 
-You can also use OdinSerializer as a standalone serialization library via the
-`SerializationUtility` class, for example to store data in a file or send it over the network:
+Understanding the division of labor between Godot's native serialization and Odin is key to
+using this library effectively.
+
+**In a nutshell:** `SerializedNode`/`SerializedResource` pack their non-Godot fields into
+`SerializedBytes` — a `[Export] byte[]` that Godot treats just like any other exported
+property. This byte array is the bridge between the two systems.
+
+```
+Godot handles → [Export] fields (int, string, Vector3, Node references, etc.)
+                 + SerializedBytes (stored as a raw byte array)
+Odin handles  → everything inside SerializedBytes (Dictionary, interface,
+                 polymorphic objects, generics — types Godot doesn't understand)
+```
+
+**Save flow:**
+1. You call `Serialize()` — Odin walks all public / `[OdinSerialize]` fields, **skips**
+   `[Export]` fields (Godot already handles those), and packs the rest into `SerializedBytes`.
+2. You save the scene — Godot writes all `[Export]` fields (including `SerializedBytes`) to
+   the `.tscn` / `.tres` file.
+
+**Load flow:**
+1. Godot loads the scene file and restores all `[Export]` fields — `hp`, `position`, and the
+   opaque `SerializedBytes` byte array — automatically.
+2. `_Ready()` fires → `Deserialize()` reads `SerializedBytes` and restores the complex C#
+   fields (dictionaries, interfaces, generics, etc.).
+
+**Serialization policy (which fields go to Odin vs Godot):**
+
+| Field declaration | Who serializes it? |
+|---|---|
+| `public Dictionary<K,V> dict` | **Odin** — Godot can't handle this type |
+| `public int score` | **Odin** — public field, no `[Export]` |
+| `[Export] public int hp` | **Godot** — Odin skips it to avoid double-serialization |
+| `[OdinSerialize] public int mana` | **Odin** — forced via attribute |
+| `[OdinSerialize] [Export] public int xp` | **Odin** — `[OdinSerialize]` takes priority |
+| `private int _internal` | **Neither** — not public, no attribute |
+
+> **Rule of thumb:** You don't need to add `[OdinSerialize]` to everything. Odin
+> automatically picks up public fields. Only add `[OdinSerialize]` if you want Odin to
+> **also** take over a field that Godot would normally serialize (e.g., to get polymorphic
+> support on that field).
+
+### Using Odin without Godot (standalone mode)
+
+You can also use OdinSerializer as a completely independent serialization library — no Godot
+integration, no `SerializedNode` inheritance. Use the `SerializationUtility` class directly,
+for example to store save files or send data over the network:
 
 ```csharp
 using OdinSerializer;

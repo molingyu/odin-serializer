@@ -6,7 +6,7 @@
 	Fast, robust, powerful and extendible .NET serializer — now with Godot support
 </h3>
 <p align="center">
-	This repository is a fork of <a href="https://github.com/sirenix/odin-serializer">sirenix/odin-serializer</a>
+	This repository is a fork of <a href="https://github.com/TeamSirenix/odin-serializer">TeamSirenix/odin-serializer</a>
 	that adds first-class <a href="https://godotengine.org/">Godot</a> support (C# / mono) on top of the original Unity support.
 </p>
 <hr>
